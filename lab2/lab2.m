@@ -109,6 +109,9 @@ newImage = double(zeros(newSizeY,newSizeX));
 for nX = 0:(newSizeX-1)
     for nY = (0:newSizeY-1)
         
+        j = mod(nY*yStep,1);
+        i = mod(nX*xStep,1);
+        
         %obliczamy współrzędne punktów potrzebne do interpolacji
         x1 = floor(nX*xStep)+1;
         y1 = floor(nY*yStep)+1;
@@ -139,7 +142,9 @@ for nX = 0:(newSizeX-1)
         
         %newImage(nY+1,nX+1) = 1/((x2-x1)*(y2-y1)) * ( fA*(x2-nX)*(y2-nY) + fB*(nX-x1)*(y2-nY) + fC*(nX-x1)*(nY-y1) + fD(x2-nX)*(nY-y1));
         %newImage(nY+1,nX+1) = fA*(1-nX)*(1-nY) + fB*nX*(1-nY) + fC*nX*nY + fD*(1-nX)*nY;
-        newImage(nY+1,nX+1) = [1-nX nX]*[fA fD; fB fC]*[1-nY;nY];
+        newImage(nY+1,nX+1) = [1-i i]*[fA fD; fB fC]*[1-j;j];
+        
+        %nI(jj+1,ii+1) = [1 - i i] * [I(Aj,Ai) I(Dj,Di); I(Bj,Bi) I(Cj,Ci)] * [1 - j; j];
     end
 end
 
@@ -195,6 +200,9 @@ A1 = getfield(load('a1'),'A1');
 for nX = 0:(newSizeX-1)
     for nY = (0:newSizeY-1)
         
+        j = mod(nY*yStep,1);
+        i = mod(nX*xStep,1);
+        
         %obliczamy współrzędne punktów potrzebne do interpolacji
         x1 = floor(nX*xStep)+1;
         y1 = floor(nY*yStep)+1;
@@ -216,16 +224,16 @@ for nX = 0:(newSizeX-1)
         end
         
         %wyliczamy macierz x
-        x = [ image(y1,x1) image(y1,x2) image(y2,x1) image(y2,x2) pochodnaX(image,y1,x1) pochodnaX(image,y1,x2) pochodnaX(image,y2,x1) pochodnaX(image,y2,x2) pochodnaY(image,y1,x1) pochodnaY(image,y1,x2) pochodnaY(image,y2,x1) pochodnaY(image,y2,x2) pochodnaXY(image,y1,x1) pochodnaXY(image,y1,x2) pochodnaXY(image,y2,x1) pochodnaXY(image,y2,x2) ];
+        x = [ image(y1,x1); image(y1,x2); image(y2,x1); image(y2,x2); pochodnaX(image,y1,x1); pochodnaX(image,y1,x2); pochodnaX(image,y2,x1); pochodnaX(image,y2,x2); pochodnaY(image,y1,x1); pochodnaY(image,y1,x2); pochodnaY(image,y2,x1); pochodnaY(image,y2,x2); pochodnaXY(image,y1,x1); pochodnaXY(image,y1,x2); pochodnaXY(image,y2,x1); pochodnaXY(image,y2,x2)];
         
         %wyliczmay a
-        a = x*A1;
+        a = A1*x;
         
         %liczymy sume sum
         tmp = 0;
-        for i = 0:3
-            for j = 0:3
-                tmp = tmp + a((j*4 + i)+1)*nX^i*nY^j;
+        for ii = 0:3
+            for jj = 0:3
+                tmp = tmp + a((jj*4 + ii)+1)*(i^ii)*(j^jj);
             end
         end
         
@@ -236,6 +244,6 @@ end
 
 %wyświetlamy przeskalowany obraz
 figure(4)
-imshow(newImage)
+imshow(uint8(newImage))
 title('dwuszescienna')
   
