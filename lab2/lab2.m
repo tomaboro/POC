@@ -246,4 +246,87 @@ end
 figure(4)
 imshow(uint8(newImage))
 title('dwuszescienna')
-  
+
+%%
+%POROWNANIE INTERPOLACJI
+%czscimy zmienne
+clearvars;
+clear all;
+clc;
+
+%wczytujemy obraz
+image = double(imread('parrot.bmp'));
+%image = double(imread('clock.bmp'));
+%image = double(imread('chessboard.bmp'));
+
+%wyświetlamy obraz
+figure(1);
+imshow(uint8(image))
+title('oryginał')
+
+%ustalamy wartość przeskalowanie
+xReScale = 100;
+yReScale = 120;
+
+%newImage = imresize(image,[xReScale yReScale],'bicubic');
+newImage = imresize(image,[xReScale yReScale],'bilinear');
+%newImage = imresize(image,[xReScale yReScale],'nearest');
+figure(5)
+imshow(uint8(newImage))
+title('imresize')
+
+%%
+%ROZDZIELCZOSC DPI
+%czscimy zmienne
+clearvars;
+clear all;
+clc;
+
+%wczytujemy obraz
+image = imread('lena.bmp');
+
+%przeskalowywujemy obraz i powiekszamy go
+newImage = imresize(image,[256 256],'bilinear');
+newImage1 = imresize(image,[128 128],'bilinear');
+newImage2 = imresize(image,[64 64],'bilinear');
+
+%wyświetlamy wyniki
+subplot(1,3,1);
+imshow(newImage,'InitialMagnification',200)
+subplot(1,3,2);
+imshow(newImage1,'InitialMagnification',400)
+subplot(1,3,3);
+imshow(newImage2,'InitialMagnification',800)
+
+%%
+%LICZBA POZIOMÓW JASNOŚCI 
+%czscimy zmienne
+clearvars;
+clear all;
+clc;
+
+%wczytujemy obraz
+image = imread('lena.bmp');
+
+%przeksalowywujemy obraz
+newImage = imresize(image,[128 128],'bilinear');
+
+%zmieniamy odpowiednio poziomy jasnosci 
+newImage1 = imadjust(newImage,[0 1], [0 31*1/256]);
+newImage2 = imadjust(newImage,[0 1], [0 15*1/256]);
+newImage3 = imadjust(newImage,[0 1], [0 7*1/256]);
+newImage4 = imadjust(newImage,[0 1], [0 3*1/256]);
+newImage5 = imadjust(newImage,[0 1], [0 1*1/256]);
+
+%tysujemy wszystko na jednym wykresie
+subplot(2,3,1);
+imshow(newImage1,[])
+subplot(2,3,2);
+imshow(newImage2,[])
+subplot(2,3,3);
+imshow(newImage3,[])
+subplot(2,3,4);
+imshow(newImage4,[])
+subplot(2,3,5);
+imshow(newImage5,[])
+
