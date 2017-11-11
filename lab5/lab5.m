@@ -131,3 +131,46 @@ imageBW = uint8(imageBW);
 
 figure(2);
 imshow(imageBW,[]);
+
+%%
+clearvars;
+clear all;
+clc;
+
+image = imread('tekstReczny.png');
+
+figure(1);
+subplot(1,2,1); imshow(image);
+subplot(1,2,2); imhist(image);
+
+figure(2);
+subplot(1,2,1); imshow(image);
+subplot(1,2,2); imshow(im2bw(image,graythresh(image)));
+
+imageCP = image;
+N = 20;
+a = 0.5;
+[Y X] = size(image);
+fifo = zeros(1,X*Y+100);
+startPtr = 1;
+endPtr = 20;
+tmpM = 0;
+
+for j = 1:Y
+    for i = 1:X
+        startPtr = startPtr+1;
+        endPtr = endPtr+1;
+        fifo(endPtr) = image(j,i);
+        m = tmpM + (1/N)*(fifo(endPtr)-fifo(startPtr));
+        tmpM = m;
+        T = a*m;
+        if image(j,i) < T
+            imageCP(j,i) = 0;
+        else
+            imageCP(j,i) = 255;
+        end 
+    end
+end
+
+figure(3);
+imshow(imageCP);
