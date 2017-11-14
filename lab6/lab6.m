@@ -93,14 +93,23 @@ M = M/9;
 
 %M = fspecial('laplacian',0.75);
 M = fspecial('laplacian',0.75);
-imageN = uint8(conv2(image,M,'same'));
+imageN = conv2(image,M,'same');
 
 figure(1);
 subplot(1,4,1); imshow(image);
 subplot(1,4,2); imshow(imageN+128,[]);
 subplot(1,4,3); imshow(abs(imageN),[]);
 %subplot(1,4,4); imshow(imadd(image,imageN));
+subplot(1,4,4); imshow(uint8(imsubtract(double(image),imageN)));
+
+figure(2);
+imageN = uint8(conv2(image,M,'same'));
+subplot(1,4,1); imshow(image);
+subplot(1,4,2); imshow(imageN+128,[]);
+subplot(1,4,3); imshow(abs(imageN),[]);
+%subplot(1,4,4); imshow(imadd(image,imageN));
 subplot(1,4,4); imshow(imsubtract(image,imageN));
+
 
 %%
 clearvars;
@@ -118,22 +127,22 @@ load maskiPP;
 %M = P2;
 %M = S1;
 M = S2;
-imageN = uint8(conv2(image,M,'same'));
+imageN = conv2(image,M,'same');
 
 figure(1);
 subplot(1,4,1); imshow(image);
 subplot(1,4,2); imshow(imageN+128,[]);
 subplot(1,4,3); imshow(abs(imageN),[]);
 %subplot(1,4,4); imshow(imadd(image,imageN));
-subplot(1,4,4); imshow(imsubtract(image,imageN));
+subplot(1,4,4); imshow(imsubtract(double(image),imageN));
 
 
 O = image;
-OW = sqrt(imadd(conv2(O,S1,'same').^2,conv2(O,S2,'same').^2));
+OW = sqrt(conv2(O,S1,'same').^2 + conv2(O,S2,'same').^2);
 OW2 = sqrt(imadd(abs(conv2(O,S1,'same')),abs(conv2(O,S2,'same'))));
 figure(2);
-subplot(1,2,1); imshow(OW);
-subplot(1,2,2); imshow(OW2);
+subplot(1,2,1); imshow(OW,[]);
+subplot(1,2,2); imshow(OW2,[]);
 
 %%
 clearvars;
@@ -152,11 +161,11 @@ for i = 5:Y-5
         currSize = 1;
         
         while true
-            %faza A    for j = 5:X-5
-            window = image(i-currSize:i+currSize,j-currSize:j+currSize);
-            z_med = median(median(window));
-            z_max = max(max(window));
-            z_min = min(min(window));
+            %faza A 
+            window = double(image(i-currSize:i+currSize,j-currSize:j+currSize));
+            z_med = median(window(:));
+            z_max = max(window(:));
+            z_min = min(window(:));
             z_xy = image(i,j);
             A1 = z_med - z_min;
             A2 = z_med - z_max;
@@ -186,5 +195,5 @@ imageCP2 = medfilt2(image,[5 5]);
 
 figure(1);
 subplot(1,3,1); imshow(image);
-subplot(1,3,2); imshow(imageCP2);
-subplot(1,3,3); imshow(imageCP);
+subplot(1,3,2); imshow(imageCP2,[]);
+subplot(1,3,3); imshow(imageCP,[]);
