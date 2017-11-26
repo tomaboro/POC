@@ -168,4 +168,94 @@ subplot(1,3,3); imshow(imageClosed);        title('zamknięcie');
 figure(3);
 subplot(1,3,1); imshow(image);              title('oryginał');
 subplot(1,3,2); imshow(imageTopHat);        title('topHat');
-subplot(1,3,3); imshow(imageBottomHat);        title('bottomHat');
+subplot(1,3,3); imshow(imageBottomHat);     title('bottomHat');
+
+image2 = imread('rice.png');
+
+SE2 = strel('disk',10);
+image2tophat = imtophat(image2,SE2);
+
+figure(4);
+subplot(1,2,1); imshow(image2);             title('oryginal');
+subplot(1,2,2); imshow(image2tophat);       title('tophat');
+
+%%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+image = imread('calculator.bmp');
+
+SE = ones(1,71);
+imageEroded = imerode(image,SE);
+imageReconstructed = imreconstruct(imageEroded,image);
+imageOpened = imopen(image,SE);
+
+figure(1);
+subplot(1,4,1); imshow(image);                    title('oryginal');
+subplot(1,3,2); imshow(imageReconstructed);       title('rekonstrukcja');
+subplot(1,3,3); imshow(imageOpened);              title('klasyczne otwarcie');
+
+image2 = imabsdiff(image,imageReconstructed);
+
+figure(2);
+subplot(1,2,1); imshow(image2);                  title('imabsdiff');
+subplot(1,2,2); imshow(imtophat(image,SE));         title('tophat');
+
+SE2 = ones(1,11);
+image2Eroded = imerode(image2,SE2);
+image2Reconstructed = imreconstruct(image2Eroded,image2);
+
+figure(3);
+subplot(1,2,1); imshow(image2);                    title('oryginal');
+subplot(1,2,2); imshow(image2Reconstructed);       title('rekonstrukcja');
+
+SE3 = ones(1,21);
+image3 = imdilate(image2Reconstructed,SE3);
+image3Reconstructed = imreconstruct(min(image2Reconstructed,image2),image2);
+
+figure(4);
+subplot(1,2,1); imshow(image);                  title('start');
+subplot(1,2,2); imshow(image3Reconstructed);    title('result');
+
+%%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+load gra.mat;
+
+lut = makelut(@myFunc,3);
+
+image = imread('szkielet.bmp');
+
+figure(1);
+subplot(1,2,1); imshow(image);
+subplot(1,2,2); imshow(applylut(image,lut));
+
+%%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+load gra.mat;
+
+lut = makelut(@myFunc2,3);
+
+step0 = plansza;
+step1 = applylut(step0,lut);
+step2 = applylut(step1,lut); 
+step3 = applylut(step2,lut); 
+step4 = applylut(step3,lut); 
+step5 = applylut(step4,lut);
+
+figure(1);
+subplot(2,3,1); imshow(step0); title('step0');
+subplot(2,3,2); imshow(step1); title('step1');
+subplot(2,3,3); imshow(step2); title('step2');
+subplot(2,3,4); imshow(step3); title('step3');
+subplot(2,3,5); imshow(step4); title('step4');
+subplot(2,3,6); imshow(step5); title('step5');
