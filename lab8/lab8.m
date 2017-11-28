@@ -213,7 +213,7 @@ subplot(1,2,2); imshow(image2Reconstructed);       title('rekonstrukcja');
 
 SE3 = ones(1,21);
 image3 = imdilate(image2Reconstructed,SE3);
-image3Reconstructed = imreconstruct(min(image2Reconstructed,image2),image2);
+image3Reconstructed = imreconstruct(min(image3,image2),image2);
 
 figure(4);
 subplot(1,2,1); imshow(image);                  title('start');
@@ -245,7 +245,7 @@ load gra.mat;
 
 lut = makelut(@myFunc2,3);
 
-step0 = plansza;
+step0 = plansza1;
 step1 = applylut(step0,lut);
 step2 = applylut(step1,lut); 
 step3 = applylut(step2,lut); 
@@ -259,3 +259,23 @@ subplot(2,3,3); imshow(step2); title('step2');
 subplot(2,3,4); imshow(step3); title('step3');
 subplot(2,3,5); imshow(step4); title('step4');
 subplot(2,3,6); imshow(step5); title('step5');
+
+%%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+load gra.mat;
+
+lut = makelut(@myFunc2,3);
+
+step1 = obraz;
+step2 = plansza2;
+for i = 1:120
+    subplot(1,2,1); imshow(step1);
+    subplot(1,2,2); imshow(step2);
+    step1 = applylut(step1,lut);
+    step2 = applylut(step2,lut);
+    pause(0.25);
+end
