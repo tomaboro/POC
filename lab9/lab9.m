@@ -21,24 +21,24 @@ subplot(1,2,2); imshow(imageEdge);          title('detekcja LoG');
 image = imread('dom.png');
 tresh = 0.5;
 sigma = 4;
-imageEdge = edge(image,'canny');
+imageEdge = edge(image,'Canny');
 %imageEdge = edge(image,'canny',tresh,sigma);
 
 figure(2);
-subplot(1,2,1); imshow(image);          title('oryginal');
+subplot(1,2,1); imshow(image);              title('oryginal');
 subplot(1,2,2); imshow(imageEdge);          title('detekcja Canny');
 
 %%
 
 image = imread('dom.png');
-tresh = 4;
-sigma = 4;
-imageEdge = edge(image,'Sobol');
-%imageEdge = edge(image,'Sobol',tresh,sigma);
+tresh = 0;
+sigma = 0;
+%imageEdge = edge(image,'Sobel');
+imageEdge = edge(image,'Sobel',tresh);
 
 figure(2);
 subplot(1,2,1); imshow(image);          title('oryginal');
-subplot(1,2,2); imshow(imageEdge);          title('detekcja Sobol');
+subplot(1,2,2); imshow(imageEdge);          title('detekcja Sobel');
 
 %%
 image = imread('dom.png');
@@ -49,16 +49,17 @@ imageEdgeSobel = edge(image,'Sobel');
 
 imageEdgeCanny = edge(image,'canny');
 
-tresh1 = 4;
-sigma1 = 4;
+
+tresh1 = 0.5;
+sigma1 = 0.5;
 imageEdgeLoG1 = edge(image,'log',tresh1,sigma1);
 
-tresh2 = 4;
-sigma2 = 4;
-imageEdgeSobel1 = edge(image,'Sobel',tresh2,sigma2);
+tresh2 = 0.3;
+sigma2 = 0.3;
+imageEdgeSobel1 = edge(image,'Sobel',tresh1);
 
-tresh3 = 4;
-sigma3 = 4;
+tresh3 = 0.5;
+sigma3 = 0.5;
 imageEdgeCanny1 = edge(image,'canny',tresh3,sigma3);
 
 figure(4);
@@ -124,12 +125,33 @@ imageEdge = edge(image,'canny');
 figure(1);
 imshow(imageEdge);
 
-[H,theta,rho] = hough(image);
+[H,theta,rho] = hough(image,'RhoResolution',0.1,'ThetaResolution',0.5);
+peaks = houghpeaks(H,8);
 
 figure(2);
 imshow(H,[]);
 hold on;
+plot(peaks(:,2),peaks(:,1),'ro');
 
-tmp = houghpeaks(H,8);
+%%
+figure(3);
+lines = houghlines(imageEdge,theta,rho,peaks,'FillGap',5,'MinLength',7);
+figure, imshow(imageEdge), hold on
+max_len = 0;
+for k = 1:length(lines)
+   xy = [lines(k).point1; lines(k).point2];
+   plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
 
-plot(tmp,'o');
+   % Plot beginnings and ends of lines
+   plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+   plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+
+   % Determine the endpoints of the longest line segment
+   len = norm(lines(k).point1 - lines(k).point2);
+   if ( len > max_len)
+      max_len = len;
+      xy_long = xy;
+   end
+end
+
+%%
