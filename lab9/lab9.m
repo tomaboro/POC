@@ -7,10 +7,10 @@ clear all;
 clc;
 
 image = imread('dom.png');
-tresh = 10;
-sigma = 0.1;
-%imageEdge = edge(image,'log');
-imageEdge = edge(image,'log',tresh,sigma);
+tresh = 28;
+sigma = 0.08;
+imageEdge = edge(image,'log');
+%imageEdge = edge(image,'log',tresh,sigma);
 
 figure(1);
 subplot(1,2,1); imshow(image);              title('oryginal');
@@ -19,10 +19,10 @@ subplot(1,2,2); imshow(imageEdge);          title('detekcja LoG');
 %%
 
 image = imread('dom.png');
-tresh = 0.5;
-sigma = 4;
-imageEdge = edge(image,'Canny');
-%imageEdge = edge(image,'canny',tresh,sigma);
+tresh = [0.1 0.2];
+sigma = 0.07;
+%imageEdge = edge(image,'Canny');
+imageEdge = edge(image,'canny',tresh,sigma);
 
 figure(2);
 subplot(1,2,1); imshow(image);              title('oryginal');
@@ -31,13 +31,13 @@ subplot(1,2,2); imshow(imageEdge);          title('detekcja Canny');
 %%
 
 image = imread('dom.png');
-tresh = 0;
-sigma = 0;
+tresh = 26;
+sigma = 0.3;
 %imageEdge = edge(image,'Sobel');
 imageEdge = edge(image,'Sobel',tresh);
 
 figure(2);
-subplot(1,2,1); imshow(image);          title('oryginal');
+subplot(1,2,1); imshow(image);              title('oryginal');
 subplot(1,2,2); imshow(imageEdge);          title('detekcja Sobel');
 
 %%
@@ -163,10 +163,14 @@ image = imread('lab112.png');
 figure(1);
 subplot(1,3,1); imshow(image);
 
-T = 45;
-image(image < T) = 0;
-image(image > T) = 255;
-image(:, 500:640) = 255;
+image = im2bw(image,0.4);
+image = imcomplement(image);
+
+SE = ones(1,100);
+imageEroded = imerode(image,SE);
+image = imreconstruct(imageEroded,image);
+
+image = imcomplement(image);
 
 subplot(1,3,2); imshow(image);
 
@@ -175,7 +179,7 @@ image = edge(image,'sobel');
 subplot(1,3,3); imshow(image);
 
 [H,theta,rho] = hough(image,'RhoResolution',1,'ThetaResolution',1);
-peaks = houghpeaks(H,10);
+peaks = houghpeaks(H,8);
 
 figure(2);
 imshow(H,[]);
@@ -183,7 +187,7 @@ hold on;
 plot(peaks(:,2),peaks(:,1),'ro');
 
 figure(3);
-lines = houghlines(image,theta,rho,peaks,'FillGap',5,'MinLength',7);
+lines = houghlines(image,theta,rho,peaks);
 max_len = 0;
 for k = 1:length(lines)
    xy = [lines(k).point1; lines(k).point2];
@@ -200,3 +204,59 @@ for k = 1:length(lines)
       xy_long = xy;
    end
 end
+
+%%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+image = imread('dom.png');
+
+figure(1);
+subplot(1,3,1); imshow(image);
+
+image = im2bw(image,0.4);
+image = imcomplement(image);
+
+SE = ones(1,100);
+imageEroded = imerode(image,SE);
+image = imreconstruct(imageEroded,image);
+
+image = imcomplement(image);
+
+subplot(1,3,2); imshow(image);
+
+image = edge(image,'sobel');
+
+subplot(1,3,3); imshow(image);
+
+[H,theta,rho] = hough(image,'RhoResolution',1,'ThetaResolution',1);
+peaks = houghpeaks(H,13);
+
+figure(2);
+imshow(H,[]);
+hold on;
+plot(peaks(:,2),peaks(:,1),'ro');
+
+figure(3);
+lines = houghlines(image,theta,rho,peaks);
+imshow(image); hold on;
+max_len = 0;
+for k = 1:length(lines)
+   xy = [lines(k).point1; lines(k).point2];
+   plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green'); hold on
+
+   % Plot beginnings and ends of lines
+   plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow'); hold on
+   plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red'); hold on
+
+   % Determine the endpoints of the longest line segment
+   len = norm(lines(k).point1 - lines(k).point2);
+   if ( len > max_len)
+      max_len = len;
+      xy_long = xy;
+   end
+end
+
+%%
