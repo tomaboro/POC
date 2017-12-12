@@ -265,13 +265,13 @@ clearvars;
 clear all;
 clc;
 
-image = zeros(11,11);
-image(7,2) = 1;
-image(5,11) = 1;
-image(1,1) = 1;
-image(11,11) = 1;
+image = zeros(4,4);
+image(2,1) = 1;
+image(2,2) = 1;
+image(2,3) = 1;
+image(2,4) = 1;
 
-myHoughImage = myHough(image,-10,10,0.1,-10,10,0.1);
+myHoughImage = myHough(image,-100,100,0.5,-100,100,0.5);
 
 subplot(1,2,1); imshow(image);
 subplot(1,2,2); imshow(myHoughImage,[]);
