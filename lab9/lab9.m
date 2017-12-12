@@ -260,3 +260,18 @@ for k = 1:length(lines)
 end
 
 %%
+%czyścimy zmienne
+clearvars;
+clear all;
+clc;
+
+image = zeros(11,11);
+image(7,2) = 1;
+image(5,11) = 1;
+image(1,1) = 1;
+image(11,11) = 1;
+
+myHoughImage = myHough(image,-10,10,0.1,-10,10,0.1);
+
+subplot(1,2,1); imshow(image);
+subplot(1,2,2); imshow(myHoughImage,[]);
