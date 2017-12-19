@@ -37,7 +37,7 @@ while iStack > 0
        for J = nY-1:nY+1
            for I = nX-1:nX+1
                length = abs(image(nY,nX) - image(J,I));
-               if (length < 10) && (visited(J,I) == 0)
+               if (length < 4) && (visited(J,I) == 0)
                     iStack = iStack+1;
                     stack(iStack,:) = [J,I];
                     segmented(J,I) = 1;
@@ -100,7 +100,7 @@ clearvars;
 clc;
 
 image = imread('umbrealla.png');
-imshow(image);
+Img_start = image;
 
 image = double(rgb2hsv(image));
 imageH = image(:,:,1);
@@ -119,7 +119,7 @@ i = 0;
 
 while i < index
     IB = segRes == i;
-    if size(IB(:)) == 0 
+    if sum(IB(:)) == 0 
        i = i + 1;
        continue;
     end
@@ -144,13 +144,10 @@ while i < index
         end
 end
 
-segRes_for = segRes;
-MRes_for = MRes;
-
 segRes_unique = unique(segRes);
 for i = 1:numel(segRes_unique)
     obszar = segRes == segRes_unique(i);
-    if sum(obszar) < 33
+    if sum(obszar) < 40
         segRes(obszar) = 0;
     end
 end
@@ -163,5 +160,54 @@ end
 
 Img_final = label2rgb(segRes);
 
-subplot(1,2,1); 
+subplot(1,2,1); imshow(Img_start)
 subplot(1,2,2); imshow(Img_final,[]);
+
+%%
+close all;
+clearvars;
+clc;
+
+image1 = imread('dam_n_1.png');
+image2 = imread('dam_n.png');
+
+%subplot(1,2,1); imshow(image1);
+%subplot(1,2,2); imshow(image2);
+
+Cn = image2;
+[Cn1, num] = bwlabel(image1);
+
+%imshow(Cn1,[]);
+
+[Y X] = size(image1);
+damImage = zeros(Y,X);
+while true
+    zmiany = 0;
+    for Q = 1:num
+       Cn1_copy = Cn1;
+       for iY = 2:Y-1
+           for iX = 2:X-1
+               if Cn(iY,iX) > 0 && Cn1(iY,iX) == 0
+                    C = Cn1(iY-1:iY+1,iX-1:iX+1);
+                    C0 = nonzeros(C(:));
+                    if sum(C0 == Q) > 0
+                       zmiany = zmiany + 1;
+                       CU = unique(C0);
+                       if size(CU == 1)
+                           Cn1_copy(iY,iX) = CU(1);
+                       else
+                           damImage(iY,iX) = 1;
+                           Cn(iY,iX) = 0;
+                       end
+                    end
+               end
+           end
+       end
+       Cn1 = Cn1_copy;
+    end
+    if zmiany == 0
+        break;
+    end;
+end
+
+imshow(damImage,[]);
