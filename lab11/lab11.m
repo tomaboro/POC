@@ -108,6 +108,35 @@ subplot(1,2,2); imshow(image,[]); title('x');
 
 %%
 image = imread('shapesReal.png');
-image = imbinarize(image);
 
-imshow(image);
+imageSrc = image;
+
+IBW = im2bw(image,0.22);
+IC = imcomplement(IBW);
+element_str = strel('rectangle',[5 5]);
+Ierode = imerode(IC,element_str);
+
+image = Ierode;
+
+figure(4);
+subplot(1,2,1); imshow(imageSrc);
+subplot(1,2,2); imshow(image);
+
+
+image = bwlabel(image,4);
+
+wsp = obliczWspolczynniki(image);
+[Y,X] = size(image);
+
+for J = 1:Y
+    for I = 1:X
+        piksel = image(J,I);
+        if piksel ~= 0 && ~(wsp(piksel,2) > 0.50 && wsp(piksel,2) < 0.66)
+            image(J,I) = 0;
+        end
+    end
+end
+
+figure(5);
+subplot(1,2,1); imshow(imageSrc,[]); title('oryginal');
+subplot(1,2,2); imshow(image,[]); title('x');
